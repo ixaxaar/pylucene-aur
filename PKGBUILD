@@ -12,10 +12,9 @@ makedepends=('git')
 source=(
     "https://downloads.apache.org/lucene/pylucene/pylucene-$pkgver-src.tar.gz"
 )
-sha256sums=('SKIP') # RRuntime Environmeplace with the actual checksum
+sha256sums=('SKIP') # Replace with the actual checksum
 
 prepare() {
-    # Set environment variables for JCC build
     JAVA_BIN=$(which java)
     JAVA_HOME=$(dirname $(dirname $(readlink -f $JAVA_BIN)))
     export JCC_JDK=$JAVA_HOME
@@ -27,6 +26,8 @@ prepare() {
     export PYTHON=${PREFIX_PYTHON}/bin/python3
     export JCC="${PYTHON} -m jcc --shared"
     export NUM_FILES=16
+
+    export LD_LIBRARY_PATH="$JAVA_HOME/lib/server:$LD_LIBRARY_PATH"
 }
 
 build() {
@@ -54,4 +55,14 @@ package() {
 
     cd "$srcdir/pylucene-$pkgver"
     make install
+}
+
+package() {
+    cd "$srcdir/pylucene-$pkgver"
+    install -Dm755 "$srcdir/pylucene-$pkgver/build/lib.linux-x86_64-3.12/pylucene" "$pkgdir/usr/lib/python3.12/site-packages/"
+}
+
+post_install() {
+    # Add Java library path to LD_LIBRARY_PATH
+    echo 'export LD_LIBRARY_PATH=${JAVA_HOME}lib/server:$LD_LIBRARY_PATH' >>/etc/profile.d/jdk.sh
 }
