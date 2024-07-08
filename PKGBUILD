@@ -19,12 +19,12 @@ prepare() {
     JAVA_HOME=$(dirname $(dirname $(readlink -f $JAVA_BIN)))
     export JCC_JDK=$JAVA_HOME
     export JCC_INCLUDES="$JAVA_HOME/include:$JAVA_HOME/include/linux"
-    export JCC_LFLAGS="-L$JAVA_HOME/lib/server -ljvm"
+    export JCC_LFLAGS="-L$JAVA_HOME/lib/server:-ljvm"
 
     PYTHON_BIN=$(which python3)
     PREFIX_PYTHON=$(dirname $(dirname $(readlink -f $PYTHON_BIN)))
     export PYTHON=${PREFIX_PYTHON}/bin/python3
-    export JCC="${PYTHON} -m jcc --shared"
+    export JCC="${PYTHON} -m jcc"
     export NUM_FILES=16
 
     export LD_LIBRARY_PATH="$JAVA_HOME/lib/server:$LD_LIBRARY_PATH"
@@ -38,23 +38,13 @@ build() {
 
     cd "$srcdir/pylucene-$pkgver"
 
-    make || true
+    make
+    make install
 }
 
 check() {
     cd "$srcdir/pylucene-$pkgver"
     make test
-}
-
-package() {
-    JAVA_BIN=$(which java)
-    JAVA_HOME=$(dirname $(dirname $(readlink -f $JAVA_BIN)))
-    export JCC_JDK=$JAVA_HOME
-    export JCC_INCLUDES="$JAVA_HOME/include:$JAVA_HOME/include/linux"
-    export JCC_LFLAGS="-L$JAVA_HOME/lib/server -ljvm"
-
-    cd "$srcdir/pylucene-$pkgver"
-    make install
 }
 
 package() {
