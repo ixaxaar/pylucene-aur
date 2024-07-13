@@ -51,4 +51,13 @@ package() {
     install -dm755 "$pkgdir/usr/lib/python${PYTHON_VERSION}/site-packages"
     cp -r $startdir/installed/lib/python3.12/site-packages/lucene-$pkgver-py$PYTHON_VERSION-linux-x86_64.egg/lucene "$pkgdir/usr/lib/python$PYTHON_VERSION/site-packages/"
     cp -r $startdir/installed/lib/python3.12/site-packages/lucene-$pkgver-py$PYTHON_VERSION-linux-x86_64.egg "$pkgdir/usr/lib/python$PYTHON_VERSION/site-packages/"
+
+    # Add libjvm's path to LD_LIBRARY_PATH for lucene to dynamically load it
+    install -Dm755 /dev/null "$pkgdir/etc/profile.d/pylucene.sh"
+    cat << EOF > "$pkgdir/etc/profile.d/pylucene.sh"
+#!/bin/sh
+JAVA_BIN=$(which java)
+JAVA_HOME=$(dirname $(dirname $(readlink -f $JAVA_BIN)))
+export LD_LIBRARY_PATH="${JAVA_HOME}/lib/server:${LD_LIBRARY_PATH}"
+EOF
 }
