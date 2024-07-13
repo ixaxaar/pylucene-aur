@@ -14,6 +14,6 @@ pkgbase = pylucene
 	depends = ant
 	depends = python-setuptools
 	source = https://downloads.apache.org/lucene/pylucene/pylucene-9.10.0-src.tar.gz
-	sha256sums = SKIP
+	sha256sums = f41807c145cf57c8cc90134faa7e990d95c8a41f53d4b7478acec79bef64ece1
 
 pkgname = pylucene

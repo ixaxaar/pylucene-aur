@@ -10,9 +10,9 @@ license=('Apache')
 depends=('jdk-openjdk' 'gradle' 'python' 'gcc' 'make' 'ant' 'python-setuptools')
 makedepends=('git')
 source=(
-    "https://downloads.apache.org/lucene/pylucene/pylucene-$pkgver-src.tar.gz"
+    "https://downloads.apache.org/lucene/pylucene/pylucene-${pkgver}-src.tar.gz"
 )
-sha256sums=('SKIP') # Replace with the actual checksum
+sha256sums=('f41807c145cf57c8cc90134faa7e990d95c8a41f53d4b7478acec79bef64ece1')
 
 prepare() {
     JAVA_BIN=$(which java)
@@ -27,26 +27,28 @@ prepare() {
     export PYTHON=${PREFIX_PYTHON}/bin/python3
     export JCC="${PYTHON} -m jcc"
     export NUM_FILES=16
+    export INSTALL_OPT="--prefix ${startdir}/installed"
 
-    export LD_LIBRARY_PATH="$JAVA_HOME/lib/server:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="${JAVA_HOME}/lib/server:${LD_LIBRARY_PATH}"
 }
 
 build() {
-    cd "$srcdir/pylucene-$pkgver/jcc"
-    sudo mkdir -p $PREFIX
+    cd "$srcdir/pylucene-${pkgver}/jcc"
 
-    # add from setuptools.extension import Library to top
     # sed -i "s/enable_shared = False/enable_shared = True/" ./setup.py
     python setup.py build
     python setup.py install --user
 
-    cd "$srcdir/pylucene-$pkgver"
+    cd "$srcdir/pylucene-${pkgver}"
 
     make all || true
-    make DESTDIR="$pkgdir" install
+    make install
 }
 
 package() {
     cd "$srcdir/pylucene-$pkgver"
-    # install -Dm755 "$srcdir/pylucene-$pkgver/build/lib.linux-x86_64-3.12/pylucene" "$pkgdir/usr/lib/python3.12/site-packages/"
+    PYTHON_VERSION=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
+    install -dm755 "$pkgdir/usr/lib/python${PYTHON_VERSION}/site-packages"
+    cp -r $startdir/installed/lib/python3.12/site-packages/lucene-$pkgver-py$PYTHON_VERSION-linux-x86_64.egg/lucene "$pkgdir/usr/lib/python$PYTHON_VERSION/site-packages/"
+    cp -r $startdir/installed/lib/python3.12/site-packages/lucene-$pkgver-py$PYTHON_VERSION-linux-x86_64.egg "$pkgdir/usr/lib/python$PYTHON_VERSION/site-packages/"
 }
