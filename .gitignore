@@ -1,0 +1,8 @@
+installed/
+lib/
+pkg/
+pylucene-*.zst
+pylucene-*-src.tar.gz
+pylucene-*/
+pylucene/
+src/
