@@ -22,7 +22,8 @@ prepare() {
     export JCC_LFLAGS="-L$JAVA_HOME/lib/server:-ljvm"
 
     PYTHON_BIN=$(which python3)
-    PREFIX_PYTHON=$(dirname $(dirname $(readlink -f $PYTHON_BIN)))
+    export PREFIX_PYTHON=$(dirname $(dirname $(readlink -f $PYTHON_BIN)))
+    export PREFIX=$PREFIX_PYTHON
     export PYTHON=${PREFIX_PYTHON}/bin/python3
     export JCC="${PYTHON} -m jcc"
     export NUM_FILES=16
@@ -32,22 +33,20 @@ prepare() {
 
 build() {
     cd "$srcdir/pylucene-$pkgver/jcc"
+    sudo mkdir -p $PREFIX
 
+    # add from setuptools.extension import Library to top
+    # sed -i "s/enable_shared = False/enable_shared = True/" ./setup.py
     python setup.py build
     python setup.py install --user
 
     cd "$srcdir/pylucene-$pkgver"
 
-    make || true
-    make install
+    make all || true
+    make DESTDIR="$pkgdir" install
 }
 
 package() {
     cd "$srcdir/pylucene-$pkgver"
-    install -Dm755 "$srcdir/pylucene-$pkgver/build/lib.linux-x86_64-3.12/pylucene" "$pkgdir/usr/lib/python3.12/site-packages/"
-}
-
-post_install() {
-    # Add Java library path to LD_LIBRARY_PATH
-    echo 'export LD_LIBRARY_PATH=${JAVA_HOME}lib/server:$LD_LIBRARY_PATH' >>/etc/profile.d/jdk.sh
+    # install -Dm755 "$srcdir/pylucene-$pkgver/build/lib.linux-x86_64-3.12/pylucene" "$pkgdir/usr/lib/python3.12/site-packages/"
 }
