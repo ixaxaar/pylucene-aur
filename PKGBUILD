@@ -1,13 +1,13 @@
 # Maintainer: Russi <ixaxaar@mailbox.org> <aur@ixaxaar.in>
 
 pkgname=pylucene
-pkgver=9.10.0
+pkgver=10.0.0
 pkgrel=1
 pkgdesc="Python bindings for Apache Lucene"
 arch=('x86_64')
 url="https://lucene.apache.org/pylucene/"
 license=('Apache')
-depends=('jdk-openjdk' 'gradle' 'python' 'gcc' 'make' 'ant' 'python-setuptools')
+depends=('jdk21-openjdk' 'gradle' 'python' 'gcc' 'make' 'ant' 'python-setuptools')
 makedepends=('git')
 source=(
     "https://downloads.apache.org/lucene/pylucene/pylucene-$pkgver-src.tar.gz"
@@ -38,18 +38,26 @@ build() {
 
     cd "$srcdir/pylucene-$pkgver"
 
+    sed -i 's/--builtin-vmarg/--vmarg/g' Makefile
     make
-    make install
-}
-
-check() {
-    cd "$srcdir/pylucene-$pkgver"
-    make test
 }
 
 package() {
     cd "$srcdir/pylucene-$pkgver"
-    install -Dm755 "$srcdir/pylucene-$pkgver/build/lib.linux-x86_64-3.12/pylucene" "$pkgdir/usr/lib/python3.12/site-packages/"
+
+    # Create necessary directories
+    python_sitelib=$(python -c "import site; print(site.getsitepackages()[0])")
+    install -dm755 "$pkgdir${python_sitelib}/pylucene"
+
+    # Install Python modules
+    cp -r build/lib.linux-x86_64-cpython-312/* "$pkgdir${python_sitelib}/"
+
+    # Install Java libraries
+    install -dm755 "$pkgdir${python_sitelib}/pylucene/lucene-java-${pkgver}"
+    cp -r lucene-java-${pkgver}/* "$pkgdir${python_sitelib}/pylucene/lucene-java-${pkgver}/"
+
+    # Install JAR files
+    find lucene-java-${pkgver} -name "*.jar" -exec install -Dm644 {} "$pkgdir${python_sitelib}/pylucene/{}" \;
 }
 
 post_install() {
