@@ -12,7 +12,7 @@ makedepends=('git')
 source=(
     "https://downloads.apache.org/lucene/pylucene/pylucene-$pkgver-src.tar.gz"
 )
-sha256sums=('SKIP') # Replace with the actual checksum
+sha256sums=('100c3d61d6799ac16b7b8c1826cddf07fb1715141ebdb0d7b8119cdd96b24574')
 
 prepare() {
     JAVA_BIN=$(which java)
