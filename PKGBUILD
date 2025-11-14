@@ -12,7 +12,7 @@ makedepends=('git')
 source=(
     "https://downloads.apache.org/lucene/pylucene/pylucene-$pkgver-src.tar.gz"
 )
-sha256sums=('SKIP') # Replace with the actual checksum
+sha256sums=('100c3d61d6799ac16b7b8c1826cddf07fb1715141ebdb0d7b8119cdd96b24574')
 
 prepare() {
     JAVA_BIN=$(which java)
@@ -50,7 +50,8 @@ package() {
     install -dm755 "$pkgdir${python_sitelib}/pylucene"
 
     # Install Python modules
-    cp -r build/lib.linux-x86_64-cpython-312/* "$pkgdir${python_sitelib}/"
+    python_impl=$(python -c "import sys; print(f'cpython-{sys.version_info.major}{sys.version_info.minor}')")
+    cp -r build/lib.linux-x86_64-${python_impl}/* "$pkgdir${python_sitelib}/"
 
     # Install Java libraries
     install -dm755 "$pkgdir${python_sitelib}/pylucene/lucene-java-${pkgver}"
@@ -62,5 +63,5 @@ package() {
 
 post_install() {
     # Add Java library path to LD_LIBRARY_PATH
-    echo 'export LD_LIBRARY_PATH=${JAVA_HOME}lib/server:$LD_LIBRARY_PATH' >>/etc/profile.d/jdk.sh
+    echo 'export LD_LIBRARY_PATH=${JAVA_HOME}/lib/server:$LD_LIBRARY_PATH' >>/etc/profile.d/jdk.sh
 }
