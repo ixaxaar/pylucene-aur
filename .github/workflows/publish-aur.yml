@@ -15,7 +15,7 @@ jobs:
       - name: Publish AUR package
         uses: KSXGitHub/github-actions-deploy-aur@v2.7.1
         with:
-          pkgname: perftest
+          pkgname: pylucene
           pkgbuild: ./PKGBUILD
           commit_username: ${{ secrets.AUR_USERNAME }}
           commit_email: ${{ secrets.AUR_EMAIL }}
@@ -23,4 +23,4 @@ jobs:
           commit_message: "Update to version ${{ github.ref_name }}"
           allow_empty_commits: false
           force_push: false
-          ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
+          ssh_keyscan_types: rsa,ecdsa,ed25519
